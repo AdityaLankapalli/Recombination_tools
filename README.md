@@ -13,6 +13,7 @@ python3 CFML_sitesremover.py -f <Recomb sites> -i <Input fasta> -o <Output fasta
 
 ###### Options
 
--f    Recombination sites specified in importation_status.txt of ClonalFrameML
--i    Input fasta filename
--o    Output fasta filename 
+-f    Recombination sites specified in importation_status.txt of ClonalFrameML <br>
+-i    Input fasta filename <br>
+-o    Output fasta filename <br>
+
