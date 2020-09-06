@@ -3,9 +3,11 @@
 
 import sys,os,logging,time
 import argparse
-parser = argparse.ArgumentParser(prog='CFML_siteremover',usage='./CFML_siteremover.py [-h] [-f RECOMB_SITES] [-i INPUT_FASTA] [-o OUTPUT_FASTA] [-l SEQ_LENGTH] \n python3 CFML_siteremover.py [-h] [-f RECOMB_SITES] [-i INPUT_FASTA] [-o OUTPUT_FASTA] [-l SEQ_LENGTH]',description='''\
-	Generates a fasta file that excludes sites of recombination from an alignment and records the list of sites excluded''',
-								 epilog="Please send your suggestions and comments to Aditya <lankapalli@shh.mpg.de>")
+parser = argparse.ArgumentParser(prog='CFML_siteremover',
+				 usage='./CFML_siteremover.py [-h] [-f RECOMB_SITES] [-i INPUT_FASTA] [-o OUTPUT_FASTA] [-l SEQ_LENGTH] \n python3 CFML_siteremover.py [-h] [-f RECOMB_SITES] [-i INPUT_FASTA] [-o OUTPUT_FASTA] [-l SEQ_LENGTH]',
+				 description='''\ Generates a fasta file that excludes sites of recombination from an alignment and records the list of sites excluded''',
+				 epilog="Please send your suggestions and comments to Aditya <lankapalli@shh.mpg.de>")
+
 parser.add_argument("-f", "--Recomb",dest="recomb_sites", help="Recombination Sites")
 parser.add_argument("-i", "--input",dest="input_fasta", help="Input multifasta")
 parser.add_argument("-o", "--output",dest="output_fasta", help="Output multifasta",default='CFML_recombsitesrm.fasta')
@@ -14,40 +16,26 @@ args = parser.parse_args()
 logger=logging.getLogger()
 logging.basicConfig(filename='CFML_siteremover.log',level=logging.DEBUG,format='%(asctime)s %(levelname)-8s %(message)s',filemode='w')
 
-with open(args.recomb_sites) as f:
-	g=f.read().strip().split('\n')
-
+g=open(args.recomb_sites).read().strip().split('\n')
 m=[list(map(int,i.split('\t')[1:3])) for i in g[1:]]
 p=sorted(m,key=lambda x:x[0])
+h2=list(filter(None,open(args.input_fasta).read().strip().split('>')))
 
-with open(args.input_fasta) as h1:
-	h2=list(filter(None,h1.read().strip().split('>')))
-
-h3={}
-h5={}
-for i in h2:
-	h3[i.split('\n')[0]]=''.join(i.split('\n')[1:])
-	h5[i.split('\n')[0]]=''
-
+h3={i.split('\n')[0]:''.join(i.split('\n')[1:]) for i in h2}
+h5={i.split('\n')[0]:'' for i in h2}
 
 chrstart=0
-chrend=list(set([len(h3[numb]) for numb in h3]))[0]
+chrend=set([len(h3[numb]) for numb in h3])).pop()
 
 
 
 def fu1(x,y):
     '''Identifies if segment1 is overlapping segment2
-		and provides start and end of merged longer
-		segment'''
+       and provides start and end of merged longer segment'''
     if x[1]<y[0] or x[0]>y[1]:
         return(x,y)
     else:
         return([min(x[0],y[0]),max(x[1],y[1])])
-
-
-# In[ ]:
-
-
 
 def frun1(a,j):
 	'''checks the result from fu1 and stores them as a list '''
@@ -97,9 +85,7 @@ def frun3(indict,outdict):
 
 
 if __name__=='__main__':
-	q=[]
-	q1=[]
-	j=1
+	q=[];q1=[];j=1
 	a=p[0]
 	while j<(len(p)):
 		a,j=frun1(a,j)
@@ -128,41 +114,3 @@ if __name__=='__main__':
 	output.close()
 
 	sys.exit("Program completed successfully !!")
-
-
-'''
-	#Takes long time, but this code exactly for same purpose
-
-with open('CFML.importation_status.txt') as f:
-    g=f.read().strip().split('\n')
-
-
-m=[list(map(int,i.split('\t')[1:3])) for i in g[1:]]
-
-p=[]
-for i in m:
-    p=p+list(range(i[0],i[1]))
-
-Recombsites=list((set(p)))
-with open('fullAlignment_modified.fasta') as h1:
-    h2=list(filter(None,h1.read().strip().split('>')))
-                 
-def frun_new(site,h3,h4):
-    for i in h3:
-        h4[i]+=h3[i][site]
-
-
-h3={}
-h4={}
-for i in h2:
-    h3[i.split('\n')[0]]=''.join(i.split('\n')[1:])
-    h4[i.split('\n')[0]]=''
-    
-
-for i in range(0,list(set([len(h3[numb]) for numb in h3]))[0]):
-    if i in Recombsites:
-        pass
-    else:
-        frun_new(i,h3,h4)
-    
-'''
